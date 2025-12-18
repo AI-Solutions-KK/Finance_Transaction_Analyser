@@ -2,14 +2,21 @@
 
 import os
 import uuid
+import shutil
+from sqlalchemy import text
+
 from tools.tools import DataTransformer
 from tools.load_all_tables import load_all_tables
+from database.db_engine import engine
 
 
 class BackendController:
     def __init__(self):
         self.transformer = DataTransformer()
 
+    # -------------------------------------------------
+    # FILE PROCESSING
+    # -------------------------------------------------
     def process_file(self, uploaded_file, file_ext):
         """
         1. Save uploaded file
@@ -41,9 +48,12 @@ class BackendController:
             "csv_path": csv_path,
         }
 
+    # -------------------------------------------------
+    # LOAD TO ORACLE DATABASE
+    # -------------------------------------------------
     def load_to_database(self, df, table_name, session_id, filename, csv_path):
         """
-        Loads data into existing Oracle fact_transactions table.
+        Loads data into existing Oracle FACT_TRANSACTIONS table.
         Table structure must already exist in Oracle DB.
         """
         try:
@@ -52,16 +62,45 @@ class BackendController:
                 session_id=session_id
             )
             return True, f"✅ Loaded {len(df)} transactions into Oracle successfully"
+
         except Exception as e:
-            # Print full traceback for debugging
             import traceback
-            error_details = traceback.format_exc()
             print("=" * 80)
             print("ORACLE INSERT ERROR - FULL TRACEBACK:")
-            print(error_details)
+            print(traceback.format_exc())
             print("=" * 80)
-            return False, f"❌ Oracle Insert Error: {str(e)}\n\nCheck terminal for full traceback."
+
+            return False, f"❌ Oracle Insert Error: {str(e)}"
+
+    # -------------------------------------------------
+    # CLEAR SESSION / DATABASE
+    # -------------------------------------------------
+    def clear_database(self):
+        """
+        Clears analytics data ONLY.
+        Does NOT drop tables.
+        Safe to reuse application.
+        """
+        try:
+            with engine.begin() as conn:
+                conn.execute(text("DELETE FROM C##FINANCE.FACT_TRANSACTIONS"))
+
+            # Optional: clean uploaded files
+            if os.path.exists("uploaded_data"):
+                shutil.rmtree("uploaded_data")
+
+            return True
+
+        except Exception as e:
+            import traceback
+            print("=" * 80)
+            print("DATABASE CLEAR ERROR:")
+            print(traceback.format_exc())
+            print("=" * 80)
+            raise e
 
 
-# Singleton controller
+# -------------------------------------------------
+# SINGLETON CONTROLLER
+# -------------------------------------------------
 controller = BackendController()
