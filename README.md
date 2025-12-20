@@ -1,6 +1,5 @@
 # Bank Statement Analytics Platform
-## Complete Implementation & Deployment Guide
-
+## Industry Standard & Production Level
 ---
 
 ## Project Snap Shots 
