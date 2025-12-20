@@ -3,6 +3,18 @@
 
 ---
 
+## Project Snap Shots 
+
+### *Home-page*
+
+
+![HOME-PAGE ](home-page.png)
+
+### *Dashboard-page*
+
+![Dashboard-PAGE ](dashboard_page.png)
+
+
 ## Table of Contents
 
 1. [Project Overview](#project-overview)
