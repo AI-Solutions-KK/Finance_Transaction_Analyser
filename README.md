@@ -6,6 +6,7 @@
 
 ### *Home-page*
 
+![HOME-PAGE](snapshot_3.png)
 
 ![HOME-PAGE ](home-page.png)
 
