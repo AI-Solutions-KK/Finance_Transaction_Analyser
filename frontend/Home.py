@@ -5,11 +5,16 @@ import os
 import sys
 
 # -------------------------------------------------
-# Allow backend imports
+# Allow backend imports (DO NOT CHANGE PATH LOGIC)
 # -------------------------------------------------
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from backend.main import controller
+
+# 🔧 FIX: controller is now created via factory
+from backend.main import get_backend_service
 from tools.cleanup_utils import cleanup_session_data, get_active_sessions
+
+# Create backend service instance (same role as old controller)
+controller = get_backend_service()
 
 # -------------------------------------------------
 # PAGE CONFIG
@@ -81,7 +86,7 @@ if st.sidebar.button("🔄 Clear Current Session"):
         st.warning("No active session to clear")
     st.rerun()
 
-# Option 2: Clear ALL data (nuclear option for local use)
+# Option 2: Clear ALL data
 if st.sidebar.button("🗑️ Clear All Data", type="secondary"):
     success, msg = cleanup_session_data(cleanup_all=True)
     if success:
@@ -92,7 +97,7 @@ if st.sidebar.button("🗑️ Clear All Data", type="secondary"):
         st.error(f"❌ {msg}")
     st.rerun()
 
-# Show active sessions (for debugging)
+# Show active sessions
 with st.sidebar.expander("📊 Active Sessions"):
     sessions = get_active_sessions()
     if sessions:
@@ -111,6 +116,41 @@ uploaded_file = st.file_uploader(
     "Upload Bank Statement (PDF, CSV, Excel)",
     type=["pdf", "csv", "xlsx", "xls"]
 )
+
+st.caption("— OR —")
+
+if st.button("📄 Use Default Sample Statement"):
+    sample_path = os.path.join(
+        os.path.dirname(__file__),
+        "samples",
+        "sample_statement.pdf"
+    )
+
+    with open(sample_path, "rb") as f:
+        class DummyUpload:
+            def __init__(self, file):
+                self.file = file
+                self.name = "sample_statement.pdf"
+
+            def getbuffer(self):
+                return self.file.read()
+
+        uploaded_file = DummyUpload(f)
+        file_ext = ".pdf"
+
+        # Reset state like a fresh upload
+        st.session_state["current_file"] = uploaded_file.name
+        st.session_state["db_loaded"] = False
+
+        with st.spinner("Loading sample statement..."):
+            result = controller.process_file(uploaded_file, file_ext)
+            st.session_state["current_df"] = result["df"]
+            st.session_state["session_id"] = result["session_id"]
+            st.session_state["csv_path"] = result["csv_path"]
+
+        st.success("✅ Sample statement loaded")
+
+
 
 if uploaded_file:
     file_ext = os.path.splitext(uploaded_file.name)[1].lower()
@@ -165,10 +205,7 @@ if st.session_state["current_df"] is not None and not st.session_state["db_loade
     if st.button("📊 Load Analytics"):
         with st.spinner("Loading analytics data..."):
             success, msg = controller.load_to_database(
-                df=st.session_state["current_df"],
-                table_name=None,
                 session_id=st.session_state["session_id"],
-                filename=st.session_state["current_file"],
                 csv_path=st.session_state["csv_path"]
             )
 
