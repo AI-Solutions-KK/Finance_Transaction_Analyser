@@ -1,49 +1,22 @@
-# ==============================
-# Core Web Frameworks
-# ==============================
-streamlit==1.51.0
-fastapi==0.127.0
-uvicorn==0.38.0
-starlette==0.50.0
-
-# ==============================
-# Data Handling
-# ==============================
-pandas==2.3.3
-numpy==1.26.4
-python-dateutil==2.9.0.post0
-pytz==2025.2
-
-# ==============================
-# File Parsing
-# ==============================
-pdfplumber==0.11.8
-pdfminer.six==20251107
-pypdf==6.4.1
-openpyxl==3.1.5
-xlrd==2.0.1
-
-# ==============================
-# Database (Azure SQL)
-# ==============================
-SQLAlchemy==2.0.45
-pyodbc==5.3.0
-
-# ==============================
-# Environment & Config
-# ==============================
-python-dotenv==1.2.1
-
-# ==============================
-# HTTP / Networking (FastAPI needs)
-# ==============================
-requests==2.32.5
-httpx==0.28.1
-anyio==4.11.0
-h11==0.16.0
-
-# ==============================
-# Utility
-# ==============================
-typing_extensions==4.15.0
-packaging==25.0
+streamlit
+fastapi
+uvicorn
+starlette
+pandas
+numpy
+python-dateutil
+pytz
+pdfplumber
+pdfminer.six
+pypdf
+openpyxl
+xlrd
+SQLAlchemy
+pyodbc
+python-dotenv
+requests
+httpx
+anyio
+h11
+typing_extensions
+packaging
